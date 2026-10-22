@@ -1,0 +1,83 @@
+# =============================================================================
+# ODA Login Theme - Self-hosted Keycloak
+# =============================================================================
+# Runs Keycloak with the ODA login theme mounted and a PostgreSQL database.
+#
+#   cp env.example .env
+#   docker compose up -d
+#
+# Then select the theme in the Admin Console:
+#   Realm Settings -> Themes -> Login Theme -> oda
+#
+# For production, switch the command to "start" and terminate TLS at a
+# reverse proxy (see README.md).
+# =============================================================================
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: oda-keycloak
+    command: start-dev
+    environment:
+      # Server connection
+      KC_HOSTNAME: ${KC_HOSTNAME:-localhost}
+      KC_PROXY_HEADERS: ${KC_PROXY_HEADERS:-forwarded}
+      KC_HTTP_PORT: ${KC_HTTP_PORT:-8080}
+      KC_HTTPS_PORT: ${KC_HTTPS_PORT:-8443}
+
+      # Database
+      KC_DB: ${KC_DB:-postgres}
+      KC_DB_URL: ${KC_DB_URL:-jdbc:postgresql://postgres:5432/keycloak}
+      KC_DB_USERNAME: ${KC_DB_USERNAME:-keycloak}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:-change_me}
+
+      # Initial admin user
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:-change_me}
+
+      # Theme branding (read by the theme via ${env.VAR:default})
+      ODA_BRAND_NAME: ${ODA_BRAND_NAME:-ODA}
+      ODA_BRAND_TAGLINE: ${ODA_BRAND_TAGLINE:-}
+      ODA_LOGO_URL: ${ODA_LOGO_URL:-}
+      ODA_SUPPORT_EMAIL: ${ODA_SUPPORT_EMAIL:-}
+      ODA_PRIVACY_URL: ${ODA_PRIVACY_URL:-}
+      ODA_TERMS_URL: ${ODA_TERMS_URL:-}
+      ODA_HOME_URL: ${ODA_HOME_URL:-}
+      ODA_PRIMARY_COLOR: "${ODA_PRIMARY_COLOR:-oklch(0.5635 0.2408 260.8178)}"
+      ODA_PRIMARY_FOREGROUND: ${ODA_PRIMARY_FOREGROUND:-#ffffff}
+      ODA_ACCENT_COLOR: "${ODA_ACCENT_COLOR:-oklch(0.6489 0.2370 26.9728)}"
+
+    ports:
+      - "${KC_HTTP_PORT:-8080}:8080"
+      - "${KC_HTTPS_PORT:-8443}:8443"
+
+    volumes:
+      # Mount the theme so it can be edited without rebuilding the image.
+      # The :Z relabels the mount so the container can read it under SELinux
+      # enforcing (podman). Harmless on non-SELinux systems.
+      - ./themes/oda:/opt/keycloak/themes/oda:Z
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+  postgres:
+    image: docker.io/library/postgres:16
+    container_name: oda-keycloak-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keycloak} -d ${POSTGRES_DB:-keycloak}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  keycloak-db-data:

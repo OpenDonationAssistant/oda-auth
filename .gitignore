@@ -1,0 +1,15 @@
+# Environment / secrets (env.example is the committed template)
+.env
+.env.*
+
+# Session / scratch files
+.tmp/
+
+# Build artifacts
+build/
+dist/
+node_modules/
+
+# OS / editor
+.DS_Store
+*.log

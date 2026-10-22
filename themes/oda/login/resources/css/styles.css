@@ -1,0 +1,613 @@
+/* =============================================================================
+   ODA Login Theme - styles.css
+   =============================================================================
+   Modern, clean login theme. All brand colors are CSS custom properties so
+   they can be overridden per deployment. The primary/accent values are
+   injected from theme.properties (env-configurable) in template.ftl.
+   ============================================================================= */
+
+/* mulish-latin-wght-normal */
+@font-face {
+  font-family: 'Mulish Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 1000;
+  src: url(https://cdn.jsdelivr.net/fontsource/fonts/mulish:vf@5.3.0/latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+:root {
+  /* Brand colors (overridden by env vars via template.ftl) */
+  --oda-primary: #b4c5e4;
+  --oda-primary-foreground: #0c122e;
+  --oda-accent: oklch(0.6489 0.2370 26.9728);
+
+  /* Neutral palette */
+  --oda-background: oklch(0.9850 0 0);
+  --oda-foreground: #ffffff;
+  --oda-card: #0c0d0e;
+  --oda-card-foreground: #ffffff;
+  --oda-muted: oklch(0.9700 0 0);
+  --oda-muted-foreground: oklch(0.5560 0 0);
+  --oda-border: oklch(0.9220 0 0);
+  --oda-input: oklch(0.9220 0 0);
+  --oda-ring: oklch(0.7080 0 0);
+
+  /* Semantic colors */
+  --oda-destructive: oklch(0.5770 0.2450 27.3250);
+  --oda-success: oklch(0.7323 0.2492 142.4953);
+  --oda-warning: oklch(0.7698 0.1500 70.0000);
+  --oda-info: oklch(0.6200 0.1900 260);
+
+  /* Shape & elevation */
+  --oda-radius: 12px;
+  --oda-shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.08), 0 8px 24px -4px hsl(0 0% 0% / 0.10);
+
+  /* Typography */
+  --oda-font-sans: 'Mulish Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+.oda-html {
+  height: 100%;
+  font-family: var(--oda-font-sans);
+}
+
+.oda-body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  font-family: var(--oda-font-sans);
+  color: var(--oda-foreground);
+  /* background: */
+  /*   radial-gradient(ellipse at top left, color-mix(in srgb, var(--oda-primary) 10%, transparent), transparent 55%), */
+  /*   radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--oda-accent) 8%, transparent), transparent 55%), */
+  /*   var(--oda-background); */
+  &::before {
+          content: "";
+          position: fixed;
+          left: 0;
+          right: 0;
+          z-index: -1;
+          display: block;
+          background-color: #2d3436;
+          background-image: linear-gradient(345deg, #0c0d0e 0%, #000000 58%);
+          width: 100%;
+          height: 100%;
+        }
+}
+
+/* ---------------------------------------------------------------------------
+   Layout
+   --------------------------------------------------------------------------- */
+.oda-login {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.oda-login__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Header / logo
+   --------------------------------------------------------------------------- */
+.oda-header {
+  text-align: center;
+}
+
+.oda-header__wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.oda-logo {
+  max-height: 56px;
+  width: auto;
+}
+
+.oda-tagline {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--oda-muted-foreground);
+}
+
+/* ---------------------------------------------------------------------------
+   Card
+   --------------------------------------------------------------------------- */
+.oda-card {
+  background: var(--oda-card);
+  /* border: 1px solid var(--oda-border); */
+  border-radius: var(--oda-radius);
+  box-shadow: var(--oda-shadow);
+  padding: 2rem;
+}
+
+.oda-card__header {
+  margin-bottom: 1.5rem;
+}
+
+.oda-card__title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--oda-card-foreground);
+}
+
+/* ---------------------------------------------------------------------------
+   Locale switcher
+   --------------------------------------------------------------------------- */
+.oda-locale {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.oda-locale__link {
+  font-size: 0.75rem;
+  color: var(--oda-muted-foreground);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.oda-locale__link:hover {
+  color: var(--oda-foreground);
+}
+
+.oda-locale__link--active {
+  background: var(--oda-muted);
+  color: var(--oda-foreground);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Alerts
+   --------------------------------------------------------------------------- */
+.oda-alert {
+  padding: 0.75rem 1rem;
+  border-radius: calc(var(--oda-radius) - 2px);
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border: 1px solid;
+}
+
+.oda-alert--error {
+  background: color-mix(in srgb, var(--oda-destructive) 8%, white);
+  border-color: color-mix(in srgb, var(--oda-destructive) 30%, white);
+  color: var(--oda-destructive);
+}
+
+.oda-alert--success {
+  background: color-mix(in srgb, var(--oda-success) 8%, white);
+  border-color: color-mix(in srgb, var(--oda-success) 30%, white);
+  color: oklch(0.4000 0.1500 142);
+}
+
+.oda-alert--warning {
+  background: color-mix(in srgb, var(--oda-warning) 8%, white);
+  border-color: color-mix(in srgb, var(--oda-warning) 30%, white);
+  color: oklch(0.5000 0.1200 70);
+}
+
+.oda-alert--info {
+  background: color-mix(in srgb, var(--oda-info) 8%, white);
+  border-color: color-mix(in srgb, var(--oda-info) 30%, white);
+  color: oklch(0.4500 0.1500 260);
+}
+
+.oda-alert__title {
+  display: block;
+}
+
+/* ---------------------------------------------------------------------------
+   Form
+   --------------------------------------------------------------------------- */
+.oda-form {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oda-form-group {
+  margin-bottom: 1.25rem;
+  & > div{
+    display: flex;
+    justify-content: flex-start;
+  }
+  & #kc-form-options {
+    margin-bottom: 9px;
+  }
+}
+
+.oda-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 21px;
+  font-weight: 500;
+  color: var(--oda-foreground);
+}
+
+.oda-input {
+  
+  &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--oda-card) inset;
+    -webkit-text-fill-color: white;
+    border-radius: 9px;
+  }
+  &:focus {
+    &:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px var(--oda-card) inset;
+      -webkit-text-fill-color: white;
+      /* outline-color: var(--oda-primary); */
+      /* outline-style: solid; */
+      /* outline-width: 1px; */
+      border: 1px solid var(--oda-primary);
+    }
+  }
+
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.625rem 0.875rem;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--oda-foreground);
+  background: var(--oda-card);
+  border: 1px solid #36363d;
+  border-radius: 9px;
+}
+
+.oda-input::placeholder {
+  color: var(--oda-muted-foreground);
+}
+
+.oda-input:focus {
+  outline: none;
+  border-color: var(--oda-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--oda-primary) 25%, transparent);
+}
+
+.oda-input-error {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--oda-destructive);
+}
+
+/* Password visibility toggle */
+.oda-input-group {
+  position: relative;
+  width: 100%;
+}
+
+.oda-input-group .oda-input {
+  padding-right: 3rem;
+}
+
+.oda-password-toggle {
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  border-radius: 0.375rem;
+  color: var(--oda-muted-foreground);
+  cursor: pointer;
+}
+
+.oda-password-toggle:hover {
+  color: var(--oda-foreground);
+}
+
+.oda-password-toggle:focus-visible {
+  outline: 2px solid var(--oda-primary);
+  outline-offset: 2px;
+}
+
+/* Eye / eye-slash icons (inline SVG, inherit currentColor) */
+.oda-icon {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.oda-icon--eye {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b4c4e4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}
+
+.oda-icon--eye-slash {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b4c4e4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'/%3E%3Cline x1='1' y1='1' x2='23' y2='23'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------------------
+   Form options (remember me / forgot password)
+   --------------------------------------------------------------------------- */
+.oda-form-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.oda-form-options {
+  font-size: 0.875rem;
+}
+
+.oda-form-options a {
+  color: var(--oda-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.oda-form-options a:hover {
+  text-decoration: underline;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--oda-muted-foreground);
+}
+
+.checkbox input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--oda-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   --------------------------------------------------------------------------- */
+.oda-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.625rem 1rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--oda-radius) - 2px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, filter 0.15s ease;
+}
+
+.oda-button--primary {
+  background: var(--oda-primary);
+  color: var(--oda-primary-foreground);
+}
+
+.oda-button--primary:hover {
+  filter: brightness(1.08);
+}
+
+.oda-button--primary:focus-visible {
+  outline: 2px solid var(--oda-primary);
+  outline-offset: 2px;
+}
+
+.oda-button--block {
+  width: 100%;
+}
+
+.oda-button--large {
+  padding: 0.75rem 1rem;
+  font-size: 1.0625rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Social providers
+   --------------------------------------------------------------------------- */
+.oda-social-section {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.oda-social-section hr {
+  border: none;
+  border-top: 1px solid var(--oda-border);
+  margin: 1.5rem 0;
+}
+
+.oda-social-section h2 {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--oda-muted-foreground);
+}
+
+.oda-social-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.oda-social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+}
+
+.oda-social-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--oda-foreground);
+  background: var(--oda-card);
+  border: 1px solid var(--oda-border);
+  border-radius: calc(var(--oda-radius) - 2px);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.oda-social-button:hover {
+  background: var(--oda-muted);
+  border-color: var(--oda-input);
+}
+
+.oda-social-button:focus-visible {
+  outline: 2px solid var(--oda-primary);
+  outline-offset: 2px;
+}
+
+.oda-social-button--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.oda-social-name {
+  font-weight: 500;
+}
+
+.oda-idp-icon {
+  font-size: 1.125rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Signup / info area
+   --------------------------------------------------------------------------- */
+.oda-signup {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--oda-muted-foreground);
+}
+
+.oda-signup a {
+  color: var(--oda-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.oda-signup a:hover {
+  text-decoration: underline;
+}
+
+.oda-info-wrapper {
+  font-size: 0.875rem;
+  color: var(--oda-muted-foreground);
+}
+
+/* Try another way */
+#kc-select-try-another-way-form {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+#try-another-way {
+  color: var(--oda-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+#try-another-way:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------------- */
+.oda-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.oda-footer__links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.oda-footer__links a {
+  font-size: 0.8125rem;
+  color: var(--oda-muted-foreground);
+  text-decoration: none;
+}
+
+.oda-footer__links a:hover {
+  color: var(--oda-foreground);
+  text-decoration: underline;
+}
+
+.oda-footer__copyright {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--oda-muted-foreground);
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .oda-body {
+    padding: 1rem;
+  }
+
+  .oda-card {
+    padding: 1.5rem;
+  }
+
+  .oda-social-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Accessibility
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--oda-primary);
+  outline-offset: 2px;
+}
