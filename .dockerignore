@@ -1,0 +1,11 @@
+# Keep the build context small and avoid leaking local state into the image.
+.git
+.tmp
+.github
+.env
+.env.*
+provider/target
+build/
+dist/
+node_modules/
+*.log

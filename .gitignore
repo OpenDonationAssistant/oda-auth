@@ -9,6 +9,7 @@
 build/
 dist/
 node_modules/
+target/
 
 # OS / editor
 .DS_Store
