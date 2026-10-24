@@ -148,8 +148,8 @@ auth_oauth2.verify_aud = true            # default
 `resource_server_id` also defines the default scope prefix (`stomp.`). Set
 `auth_oauth2.scope_prefix` explicitly only if you need a prefix that differs from the id.
 
-The mapper adds `stomp` to `aud` so the audience check passes. Change `scope.prefix` and
-`audience` together if you use a different resource server id.
+The mapper adds `stomp` to `aud` (with the prefilled default) so the audience check passes. Change
+`scope.prefix` and `audience` together if you use a different resource server id.
 
 ### Mapper configuration
 
@@ -160,9 +160,14 @@ The mapper adds `stomp` to `aud` so the audience check passes. Change `scope.pre
 | `vhost.pattern` | `*` | RabbitMQ vhost pattern (`*` = every vhost). |
 | `exchange` | `amq.topic` | Exchange used for STOMP `/topic/...` destinations. |
 | `routing.key.template` | `${username}.events` | Topic suffix granted for reading. Placeholders: `${username}`, `${vhost}`, `${exchange}`, `${prefix}`. |
-| `extra.scopes` | `write`/`configure` on `stomp-subscription*` | One scope per line; clear the field to disable. |
-| `audience` | `stomp` | Added to `aud`. Clear the field to leave the audience untouched. |
+| `extra.scopes` | prefilled: `write`/`configure` on `stomp-subscription*` | One scope per value (`##` or newlines for REST). Clearing removes them. |
+| `audience` | prefilled: `stomp` | Values added to `aud`. Clearing leaves the audience untouched. |
 | `user.attribute` | *(empty)* | User attribute holding the topic name; empty = `preferred_username`. |
+
+> The defaults above are **Admin Console form prefill only**. Keycloak discards empty config
+> values when saving a mapper, so a cleared field is stored as an absent field — the mapper treats
+> it as "not configured" rather than re-applying the default. When creating the mapper through the
+> REST API or `kcadm`, set `extra.scopes` and `audience` explicitly if you need them.
 
 Usernames are percent-encoded for the scope segment (`*` → `%2A`, `/` → `%2F`, `%` → `%25`),
 so a username cannot widen its own wildcard permissions. If the username is blank, no scope is

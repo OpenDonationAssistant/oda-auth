@@ -20,19 +20,19 @@ import org.keycloak.representations.IDToken;
  * Adds per-user RabbitMQ OAuth2 scopes to the access token's {@code scope} claim.
  *
  * <p>RabbitMQ reads only the {@code scope} claim (and {@code additional_scopes_key} entries), so a
- * standalone custom claim would be ignored. The default configuration grants read access to
- * {@code /topic/<preferred_username>.events} and the scopes needed for the auto-created STOMP
- * subscription queue.
+ * standalone custom claim would be ignored. The mapper always grants read access to
+ * {@code /topic/<preferred_username>.events}; the Admin Console prefills the scopes needed for the
+ * auto-created STOMP subscription queue. Cleared fields are treated as "not configured" because
+ * Keycloak drops empty config values.
  */
 public class StompTopicScopeMapper
   extends AbstractOIDCProtocolMapper
-  implements OIDCAccessTokenMapper {
-
+  implements OIDCAccessTokenMapper
+{
   public static final String PROVIDER_ID = "oda-stomp-topic-scopes";
   static final String INCLUDE_IN_ACCESS_TOKEN = "include.in.access.token";
 
-  private static final List<ProviderConfigProperty> CONFIG_PROPERTIES =
-    createConfigProperties();
+  private static final List<ProviderConfigProperty> CONFIG_PROPERTIES = createConfigProperties();
 
   @Override
   public String getId() {
@@ -81,10 +81,7 @@ public class StompTopicScopeMapper
 
   static boolean includeInAccessToken(ProtocolMapperModel mappingModel) {
     Map<String, String> config = mappingModel.getConfig();
-    return (
-      config == null ||
-      !"false".equalsIgnoreCase(config.get(INCLUDE_IN_ACCESS_TOKEN))
-    );
+    return config == null || !"false".equalsIgnoreCase(config.get(INCLUDE_IN_ACCESS_TOKEN));
   }
 
   @Override
@@ -100,10 +97,7 @@ public class StompTopicScopeMapper
     }
 
     StompScopeConfig config = StompScopeConfig.from(mappingModel.getConfig());
-    String username = resolveUsername(
-      userSession.getUser(),
-      config.userAttribute()
-    );
+    String username = resolveUsername(userSession.getUser(), config.userAttribute());
     if (username == null || username.isBlank()) {
       // Fail closed: a blank username must never render a wildcard-only scope.
       return;
@@ -175,17 +169,18 @@ public class StompTopicScopeMapper
       new ProviderConfigProperty(
         "extra.scopes",
         "Extra scopes",
-        "One scope per line. Defaults cover the auto-created STOMP subscription queue. Clear " +
-        "the field to disable them.",
+        "One scope per value. The Admin Console prefills the STOMP subscription-queue scopes; " +
+        "clear the field to remove them. REST/CLI clients may separate values with ## or " +
+        "newlines.",
         ProviderConfigProperty.MULTIVALUED_STRING_TYPE,
-        String.join("\n", StompScopeConfig.DEFAULT_EXTRA_SCOPES)
+        String.join("##", StompScopeConfig.DEFAULT_EXTRA_SCOPES)
       ),
       new ProviderConfigProperty(
         "audience",
         "Audience",
-        "Audience added to the token (comma or newline separated). RabbitMQ rejects tokens " +
-        "whose 'aud' does not contain resource_server_id. Clear the field to leave the " +
-        "audience untouched.",
+        "Audience added to the token. The Admin Console prefills 'stomp'; clear the field to " +
+        "leave the audience untouched. RabbitMQ rejects tokens whose 'aud' does not contain " +
+        "resource_server_id.",
         ProviderConfigProperty.MULTIVALUED_STRING_TYPE,
         StompScopeConfig.DEFAULT_AUDIENCE
       ),

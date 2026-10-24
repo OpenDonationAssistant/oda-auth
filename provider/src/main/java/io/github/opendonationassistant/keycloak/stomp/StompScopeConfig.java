@@ -38,44 +38,26 @@ record StompScopeConfig(
   static StompScopeConfig from(Map<String, String> config) {
     Map<String, String> safeConfig = config == null ? Map.of() : config;
     return new StompScopeConfig(
-      normalizePrefix(
-        valueOrDefault(safeConfig, "scope.prefix", DEFAULT_PREFIX)
-      ),
+      normalizePrefix(valueOrDefault(safeConfig, "scope.prefix", DEFAULT_PREFIX)),
       valueOrDefault(safeConfig, "vhost.pattern", DEFAULT_VHOST),
       valueOrDefault(safeConfig, "exchange", DEFAULT_EXCHANGE),
-      valueOrDefault(
-        safeConfig,
-        "routing.key.template",
-        DEFAULT_ROUTING_KEY_TEMPLATE
-      ),
-      linesOr(safeConfig, "extra.scopes", DEFAULT_EXTRA_SCOPES),
-      audienceOr(safeConfig),
+      valueOrDefault(safeConfig, "routing.key.template", DEFAULT_ROUTING_KEY_TEMPLATE),
+      values(safeConfig.get("extra.scopes")),
+      values(safeConfig.get("audience")),
       valueOrDefault(safeConfig, "user.attribute", "")
     );
   }
 
   List<String> scopesFor(String username) {
     Map<String, String> values = Map.of(
-      "username",
-      ScopeTemplate.encodeSegment(username),
-      "vhost",
-      vhost,
-      "exchange",
-      exchange,
-      "prefix",
-      prefix
+      "username", ScopeTemplate.encodeSegment(username),
+      "vhost", vhost,
+      "exchange", exchange,
+      "prefix", prefix
     );
 
     Set<String> scopes = new LinkedHashSet<>();
-    scopes.add(
-      prefix +
-      "read:" +
-      vhost +
-      "/" +
-      exchange +
-      "/" +
-      routingKeyTemplate(values)
-    );
+    scopes.add(prefix + "read:" + vhost + "/" + exchange + "/" + routingKeyTemplate(values));
     extraScopes
       .stream()
       .map(scope -> ScopeTemplate.render(scope, values))
@@ -100,6 +82,25 @@ record StompScopeConfig(
     return prefix.matches("[A-Za-z0-9_-]+") ? prefix + "." : prefix;
   }
 
+  /**
+   * Parses a multivalued mapper field. The Admin Console serializes values with {@code ##};
+   * newlines are accepted too, so REST/CLI configuration stays readable.
+   *
+   * <p>A missing key means "not configured", not "use the default": Keycloak strips empty config
+   * values before persisting ({@code RepresentationToModel#removeEmptyString}), so a field cleared
+   * in the Admin Console arrives here as absent. Defaults come from the Admin Console form prefill
+   * only.
+   */
+  private static List<String> values(String raw) {
+    if (raw == null || raw.isBlank()) {
+      return List.of();
+    }
+    return Arrays.stream(raw.split("##|\\R"))
+      .map(String::trim)
+      .filter(value -> !value.isEmpty())
+      .toList();
+  }
+
   private static String valueOrDefault(
     Map<String, String> config,
     String key,
@@ -107,39 +108,5 @@ record StompScopeConfig(
   ) {
     String value = config.get(key);
     return value == null || value.isBlank() ? fallback : value.trim();
-  }
-
-  /** Audiences accept either a comma-separated or a newline-separated list. */
-  private static List<String> audienceOr(Map<String, String> config) {
-    if (!config.containsKey("audience")) {
-      return List.of(DEFAULT_AUDIENCE);
-    }
-    String value = config.get("audience");
-    if (value == null || value.isBlank()) {
-      return List.of();
-    }
-    return Arrays.stream(value.split("[,\\r\\n]+"))
-      .map(String::trim)
-      .filter(audience -> !audience.isEmpty())
-      .toList();
-  }
-
-  /** Missing key means "use the default"; a present but blank value means "none". */
-  private static List<String> linesOr(
-    Map<String, String> config,
-    String key,
-    List<String> fallback
-  ) {
-    if (!config.containsKey(key)) {
-      return fallback;
-    }
-    String value = config.get(key);
-    if (value == null || value.isBlank()) {
-      return List.of();
-    }
-    return Arrays.stream(value.split("\\R"))
-      .map(String::trim)
-      .filter(line -> !line.isEmpty())
-      .toList();
   }
 }
